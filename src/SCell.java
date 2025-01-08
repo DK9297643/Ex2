@@ -78,7 +78,7 @@ public class SCell implements Cell {
         }else if (type == Ex2Utils.NUMBER) {
             return 2;
 
-        }else if (type == Ex2Utils.ERR || type == Ex2Utils.ERR_CYCLE_FORM) {
+        }else if ( type == Ex2Utils.ERR_CYCLE_FORM) {
             return -1;
         }else if (type == Ex2Utils.FORM) {
             return 3;
@@ -138,17 +138,27 @@ public class SCell implements Cell {
         return references;
     }
 
-
-
+    public boolean isNumber(String formula) {
+        boolean flag = false;
+        try {
+            Double.parseDouble(formula);
+            return true;
+        }catch (NumberFormatException e) {
+           return false;
+        }
+    }
+    public boolean isText(String formula) {
+        return !isNumber(formula) && !isForm(formula);
+    }
 
     public static boolean isForm(String text) {
         // Reject any spaces in formula
-        if (text.contains(" "))
-            return false;
+
 
         if (!text.startsWith("="))
             return false;
         text = text.substring(1);
+        text = text.replaceAll("[^A-Za-z0-9]", "");
 
         int balance = 0;  // Track parentheses matching
         char lastChar = ' ';

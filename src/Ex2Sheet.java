@@ -214,6 +214,10 @@ public class Ex2Sheet implements Sheet {
                }else if (cell.getType() == Ex2Utils.FORM){
                try {
                    String formula = cell.getData().substring(1);
+                         formula = formula.toUpperCase();
+
+
+                       //if(formula.charAt(i).is)
                    for (int col =0 ; col < width() ; col++) {
                        for (int row = 0 ; row < height() ; row++) {
                             String ref = Ex2Utils.ABC[col] + row;
@@ -251,7 +255,8 @@ public class Ex2Sheet implements Sheet {
 
     @Override
     public Cell get(String cords) {
-        CellEntry ce = new CellEntry();
+
+    CellEntry ce = new CellEntry();
         if (!ce.isValid()) {
             return null;
         }
@@ -272,7 +277,7 @@ public class Ex2Sheet implements Sheet {
         return table[x][y];
     }
     private String replaceReferences(String formula) {
-        Pattern pattern = Pattern.compile("[A-Z][0-9]+");
+        Pattern pattern = Pattern.compile("[A-Za-z][0-9]+");
         Matcher matcher = pattern.matcher(formula);
         StringBuffer result = new StringBuffer();
 
