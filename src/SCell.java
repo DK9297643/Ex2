@@ -73,19 +73,19 @@ public class SCell implements Cell {
     @Override
     public int getType() {
 
-        if (type == Ex2Utils.TEXT ) {
-            return 1;
-        }else if (type == Ex2Utils.NUMBER) {
-            return 2;
-
-        }else if ( type == Ex2Utils.ERR_CYCLE_FORM) {
-            return -1;
-        }else if (type == Ex2Utils.FORM) {
-            return 3;
-        }else if (type == Ex2Utils.ERR_FORM_FORMAT) {
-            return -2;
+        if (isText(this.line) ) {
+            this.type = Ex2Utils.TEXT;
+            return type;
+        }else if (isNumber(this.line) ) {
+            this.type = Ex2Utils.NUMBER;
+            return type;
+        }else if (isForm(this.line)) {
+            this.type = Ex2Utils.FORM;
+            return type;
+        }else { this.type = Ex2Utils.ERR_FORM_FORMAT;
+            return type;
         }
-    return 0;
+
     }
 
     @Override
