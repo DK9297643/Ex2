@@ -17,7 +17,7 @@ public class Ex2Sheet implements Sheet {
                 table[i][j] = new SCell("");
             }
         }
-
+      eval();
     }
 
     public Ex2Sheet() {
@@ -101,6 +101,7 @@ public class Ex2Sheet implements Sheet {
     private int calculateCellDepth(int x, int y, Set<String> visited) {
        // System.out.println("got in" +x+","+y);
        // System.out.println(visited);
+
         if (!isIn(x, y)) {
             return 0;
         }
@@ -215,7 +216,8 @@ public class Ex2Sheet implements Sheet {
                    String formula = cell.getData().substring(1);
                    for (int col =0 ; col < width() ; col++) {
                        for (int row = 0 ; row < height() ; row++) {
-                           String ref = Ex2Utils.ABC[col] + row;
+                            String ref = Ex2Utils.ABC[col] + row;
+
                            if (formula.contains(ref)) {
                                String cellVal = eval(col,row);
                                formula = formula.replace(ref, cellVal);

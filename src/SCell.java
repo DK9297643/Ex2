@@ -128,7 +128,7 @@ public class SCell implements Cell {
         List<String> references = new ArrayList<>();
 
         // תבנית לזיהוי הפניות לתאים (למשל A1, B2 וכו')
-        Pattern pattern = Pattern.compile("[A-Z]+[0-9]+");
+        Pattern pattern = Pattern.compile("[A-Za-z]+[0-9]+");
         Matcher matcher = pattern.matcher(formula);
 
         while (matcher.find()) {
@@ -137,33 +137,8 @@ public class SCell implements Cell {
 
         return references;
     }
-    public boolean isNumber(String text) {
-        boolean flag = false;
-        try {
-            Double.parseDouble(text);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
 
 
-    }
-
-    public boolean isText(String text) {
-
-
-        return !isNumber(text) && !isForm(text);
-    }
-
-    //  String validChars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ()-+*/=";
-    // String mathChars = "-+=/*" ;
-    // int counter=0 ;
-    // int counter2=0
-    // public boolean isForm(String text) {
-    // for (int i = 0; i < text.length(); i++) {
-    // if (!validChars.contains(String.valueOf(text.charAt(i))))
-    // return false; // נמצא תו לא חוקי
-    // if (mathChars.contains(String.valueOf(text.charAt(i) && String.valueOf(text.charAt(i+1)))
 
 
     public static boolean isForm(String text) {
@@ -222,33 +197,11 @@ public class SCell implements Cell {
                 isOperator(c) ||         // Operators
                 c == '.' ||              // Decimal point
                 c == '(' || c == ')' ||  // Parentheses
-                (c >= 'A' && c <= 'Z');  // Cell references
+                (c >= 'A' && c <= 'Z') || // Cell references
+                 (c >= 'a' && c <= 'z');
     }
 
-  //**  public static boolean processText(String text) {
-    //    Pattern pattern = Pattern.compile("[A-Z]+(\\d+)");
-      //  Pattern pattern2 = Pattern.compile("[A-Z]{2}");
-        //Matcher matcher = pattern.matcher(text);
-      //  Matcher matcher2 = pattern2.matcher(text);
-       // int number;
-       // if (matcher2.find()) {
-        //    return false;
-      //  }
-       // if (matcher.find()) {
-            //String numberPart = matcher.group(1); // שליפת המספר
-           // number = Integer.parseInt(numberPart);
 
-
-                // בדיקת ערך המספר
-              //  if (number > 99)
-               //     return false;
-
-
-
-
-       // }
-
-     //  return true;
 
 
 
