@@ -69,36 +69,65 @@ public class SCell implements Cell {
        //
         return line;
     }
-
     @Override
     public int getType() {
-
-        if (isText(this.line) ) {
-            this.type = Ex2Utils.TEXT;
-            return type;
-        }else if (isNumber(this.line) ) {
-            this.type = Ex2Utils.NUMBER;
-            return type;
-        }else if (isForm(this.line)) {
-            this.type = Ex2Utils.FORM;
-            return type;
-        }else { this.type = Ex2Utils.ERR_FORM_FORMAT;
-            return type;
+        return this.type;
         }
 
-    }
 
     @Override
     public void setType(int t) {
-
-        type = t;
+        // בדיקת תקינות הערך
+        this.type = t;
+        // אם זו שגיאת מחזוריות, נעדכן גם את הdata
+        if (t == Ex2Utils.ERR_CYCLE_FORM) {
+            this.line = Ex2Utils.ERR_CYCLE;
+        }
+        // אם זו שגיאת פורמט, נעדכן גם את הdata
+        else if (t == Ex2Utils.ERR_FORM_FORMAT) {
+            this.line = Ex2Utils.ERR_FORM;
+        }
     }
+//    @Override
+//    public int getType() {
+//
+//
+//        if (isText(this.line) ) {
+//            this.type = Ex2Utils.TEXT;
+//            return type;
+//        }else if (isNumber(this.line) ) {
+//            this.type = Ex2Utils.NUMBER;
+//            return type;
+//        }else if (isForm(this.line)) {
+//            this.type = Ex2Utils.FORM;
+//            return type;
+//        }else { this.type = Ex2Utils.ERR_FORM_FORMAT;
+//            return type;
+//        }
+//
+//    }
+//
+//    @Override
+//    public void setType(int t) {
+//
+//       type = t;
+//    }
 
     @Override
     public boolean setOrder(int t) {
-        if (t < -1) return false;  // סדר לא יכול להיות קטן מ-1-
-        order = t;
+        if (t < -1) { // סדר לא יכול להיות קטן מ-1-
+            return false;
+        }
+        this.order = t;
+        if (t == -1) {
+            this.type = -1; // שגיאת מעגליות
+        }
         return true;
+//        if (t < -1) return false;  // סדר לא יכול להיות קטן מ-1-
+//        order = t;
+//        if (t==-1)
+//            this.setType(Ex2Utils.ERR_CYCLE_FORM);
+//        return true;
     }
     private void determineType() {
         if (line == null || line.isEmpty()) {
@@ -244,9 +273,9 @@ public class SCell implements Cell {
         return calculate(leftValue, rightValue, operator);
 
       }
-    public static boolean isCellReference(String text) {
-        return text.matches("[A-Za-z][0-9]+");  // למשל A1, B2 וכו'
-    }
+   // public static boolean isCellReference(String text) {
+     //   return text.matches("[A-Za-z][0-9]+");  // למשל A1, B2 וכו'
+  //  }
       private static boolean containsOperator(String text) {
         return text.contains("+") || text.contains("-") || text.contains("*") || text.contains("/");
     }

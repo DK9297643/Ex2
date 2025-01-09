@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 public class Ex2Sheet implements Sheet {
     private Cell[][] table;
     // Add your code here
@@ -17,7 +18,7 @@ public class Ex2Sheet implements Sheet {
                 table[i][j] = new SCell("");
             }
         }
-      eval();
+        eval();
     }
 
     public Ex2Sheet() {
@@ -27,15 +28,54 @@ public class Ex2Sheet implements Sheet {
     @Override
     public String value(int x, int y) {
         if (!isIn(x, y)) {
-            return Ex2Utils.EMPTY_CELL;
+            return Ex2Utils.ERR_FORM;  // שגיאה אם מחוץ לגבולות
         }
+
+        // קבלת התא במיקום המבוקש
         Cell cell = get(x, y);
         if (cell == null) {
-            return Ex2Utils.EMPTY_CELL;
+            return Ex2Utils.EMPTY_CELL;  // תא ריק
         }
-        return eval(x, y);  // מחזיר את ה
 
+        // הערכת הערך בתא
+        String result = eval(x, y);  // מעריך את התא ומטפל בנוסחאות
+
+        // בדיקת סוגי שגיאות ותרגומם למחרוזות המתאימות
+        int cellType = cell.getType();
+        if (cellType == Ex2Utils.ERR_CYCLE_FORM) {
+            return Ex2Utils.ERR_CYCLE;
+        }
+        if (cellType == Ex2Utils.ERR_FORM_FORMAT) {
+            return Ex2Utils.ERR_FORM;
+        }
+//        if (result.equals(String.valueOf(Ex2Utils.ERR_CYCLE_FORM))) {
+//            return Ex2Utils.ERR_CYCLE;   // מחזיר "ERR_CYCLE!"
+//        } else if (result.equals(String.valueOf(Ex2Utils.ERR_FORM))) {
+//            return Ex2Utils.ERR_FORM;    // מחזיר "ERR_FORM!"
+//        }
+
+        return result;  // מחזיר את הערך המחושב
+//        if (!isIn(x, y)) {
+//            return Ex2Utils.EMPTY_CELL;
+//        }
+//        Cell cell = get(x, y);
+//        if (cell == null) {
+//            return Ex2Utils.EMPTY_CELL;
+//        }
+//
+//        String result = eval(x, y);
+//
+//        // תרגום קודי שגיאה למחרוזות המתאימות
+//        if (result.equals(String.valueOf(Ex2Utils.ERR_CYCLE_FORM))) {
+//            return Ex2Utils.ERR_CYCLE;
+//        }
+//        if (result.equals(String.valueOf(Ex2Utils.ERR_FORM))) {
+//            return Ex2Utils.ERR_FORM ;
+//        }
+//
+//        return result;
     }
+
 
     @Override
     public int width() {
@@ -63,9 +103,7 @@ public class Ex2Sheet implements Sheet {
     @Override
     public void eval() {
         int[][] dd = depth();
-        // Add your code here
 
-        // ///////////////////
     }
 
     @Override
@@ -88,9 +126,10 @@ public class Ex2Sheet implements Sheet {
         // עוברים על כל התאים בגיליון
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
-              //  System.out.println(i+","+j+" started");
+                //  System.out.println(i+","+j+" started");
                 depths[i][j] = calculateCellDepth(i, j, new HashSet<>());
-              //  System.out.println(i+","+j+" ended "+depths[i][j]);
+               get(i,j).setOrder(depths[i][j] );
+                //  System.out.println(i+","+j+" ended "+depths[i][j]);
             }
         }
 
@@ -98,9 +137,10 @@ public class Ex2Sheet implements Sheet {
         // ///////////////////
 
     }
+
     private int calculateCellDepth(int x, int y, Set<String> visited) {
-       // System.out.println("got in" +x+","+y);
-       // System.out.println(visited);
+        // System.out.println("got in" +x+","+y);
+        // System.out.println(visited);
 
         if (!isIn(x, y)) {
             return 0;
@@ -116,7 +156,7 @@ public class Ex2Sheet implements Sheet {
 
         // אם זה לא נוסחה, העומק הוא 0
         if (!data.startsWith("=")) {
-           // System.out.println("no form");
+            // System.out.println("no form");
             return 0;
         }
 
@@ -148,12 +188,12 @@ public class Ex2Sheet implements Sheet {
             // המרת האות לאינדקס עמודה (A->0, B->1, etc.)
             int col = Character.toUpperCase(cellRef.charAt(0)) - 'A';
             // המרת המספר לאינדקס שורה (מתחיל מ-0)
-            int row = Integer.parseInt(cellRef.substring(1)) ;
+            int row = Integer.parseInt(cellRef.substring(1));
 
             // חישוב העומק של התא המצוין
-          //  System.out.println("IN");
+            //  System.out.println("IN");
             int refDepth = calculateCellDepth(col, row, visited);
-          //  System.out.println("OUT");
+            //  System.out.println("OUT");
 
             // אם נמצאה מעגליות
             if (refDepth == -1) {
@@ -165,7 +205,7 @@ public class Ex2Sheet implements Sheet {
         }
 
         // מסירים את התא מרשימת המבוקרים
-        System.out.println("removed"+ cellId);
+        System.out.println("removed" + cellId);
         visited.remove(cellId);
 
         // אם נמצאה מעגליות, מחזירים -1
@@ -177,6 +217,7 @@ public class Ex2Sheet implements Sheet {
         return maxDepth + 1;
 
     }
+
     @Override
     public void load(String fileName) throws IOException {
         // Add your code here
@@ -192,57 +233,197 @@ public class Ex2Sheet implements Sheet {
     }
 
     @Override
+
     public String eval(int x, int y) {
-       String ans = null;
-       if(get(x, y) != null) {
-           ans=get(x, y).toString();
-
-       }else {
-           return Ex2Utils.ERR_FORM;
-       }
-       
-       Cell cell = get(x, y);
-       if (cell != null) {
-           if(cell.getType() == Ex2Utils.NUMBER){
-               try {
-                   double num = Double.parseDouble(cell.getData());
-                   ans = String.valueOf(num);
-               }catch (NumberFormatException e){
-                   ans = Ex2Utils.ERR_FORM;
-               }
-
-               }else if (cell.getType() == Ex2Utils.FORM){
-               try {
-                   String formula = cell.getData().substring(1);
-                         formula = formula.toUpperCase();
-
-
-                       //if(formula.charAt(i).is)
-                   for (int col =0 ; col < width() ; col++) {
-                       for (int row = 0 ; row < height() ; row++) {
-                            String ref = Ex2Utils.ABC[col] + row;
-
-                           if (formula.contains(ref)) {
-                               String cellVal = eval(col,row);
-                               formula = formula.replace(ref, cellVal);
-                           }
-                       }
-
-                   }
-                double result = SCell.computeForm(formula);
-                   ans = String.valueOf(result);
-           }   catch (NumberFormatException e){
-                   ans = Ex2Utils.ERR_FORM;
-               }
-           }
-       }else if (cell.getType() == Ex2Utils.TEXT){
-           ans = cell.getData();
-       }else {
-           ans = Ex2Utils.EMPTY_CELL;
-       }
-
-    return ans;
+        // משתמשים בסט לשמירת המסלול שעברנו
+        Set<String> visited = new HashSet<>();
+        return evalHelper(x, y, visited);
     }
+
+    private String evalHelper(int x, int y, Set<String> visited) {
+        String cellId = x + "," + y;
+        Cell cell = get(x, y);
+
+        // בודק אם כבר ביקרנו בתא זה - אם כן, זו מעגליות
+        if (visited.contains(cellId)) {
+            cell.setType(Ex2Utils.ERR_CYCLE_FORM);
+            return cell.getData();  // מחזיר את המחרוזת "ERR_CYCLE" במקום -1
+        }
+
+        if (cell == null) {
+            return Ex2Utils.ERR_FORM;
+        }
+
+        // טיפול בסוגי תאים שונים
+        switch(cell.getType()) {
+            case Ex2Utils.NUMBER:
+                try {
+                    double num = Double.parseDouble(cell.getData());
+                    return String.valueOf(num);
+                } catch (NumberFormatException e) {
+                    cell.setType(Ex2Utils.ERR_FORM_FORMAT);
+                    return Ex2Utils.ERR_FORM;
+                }
+
+            case Ex2Utils.FORM:
+                try {
+                    visited.add(cellId);
+                    String formula = cell.getData().substring(1).toUpperCase();
+
+                    // מחליף הפניות לתאים בערכים שלהם
+                    for (int col = 0; col < width(); col++) {
+                        for (int row = 0; row < height(); row++) {
+                            String ref = Ex2Utils.ABC[col] + row;
+                            if (formula.contains(ref)) {
+                                String cellVal = evalHelper(col, row, visited);
+                                // אם התקבלה שגיאת מחזוריות מתת-העץ
+                                if (cellVal.equals(Ex2Utils.ERR_CYCLE)) {
+                                    cell.setType(Ex2Utils.ERR_CYCLE_FORM);
+                                    return Ex2Utils.ERR_CYCLE;
+                                }
+                                formula = formula.replace(ref, cellVal);
+                            }
+                        }
+                    }
+
+                    visited.remove(cellId);
+                    double result = SCell.computeForm(formula);
+                    return String.valueOf(result);
+
+                } catch (Exception e) {
+                    cell.setType(Ex2Utils.ERR_FORM_FORMAT);
+                    return Ex2Utils.ERR_FORM;
+                }
+
+            case Ex2Utils.TEXT:
+                return cell.getData();
+
+            default:
+                return Ex2Utils.EMPTY_CELL;
+        }
+    }
+    //    private String evalHelper(int x, int y, Set<String> visited) {
+//        String ans = null;
+//        String cellId = String.valueOf(x) + "," + String.valueOf(y);
+//        Cell cell = get(x, y);
+//        // בודק אם כבר ביקרנו בתא זה - אם כן, זו מעגליות
+//        if (visited.contains(cellId)) {
+//
+//            cell.setType(Ex2Utils.ERR_CYCLE_FORM);
+//            return String.valueOf(Ex2Utils.ERR_CYCLE_FORM);
+//        }
+//
+//        if (get(x, y) != null) {
+//            ans = get(x, y).toString();
+//        } else {
+//            cell.setType(Ex2Utils.ERR_FORM_FORMAT);
+//            return String.valueOf(Ex2Utils.ERR_FORM);
+//        }
+//
+//
+//        if (cell != null) {
+//            if (cell.getType() == Ex2Utils.NUMBER) {
+//                try {
+//                    double num = Double.parseDouble(cell.getData());
+//                    ans = String.valueOf(num);
+//                } catch (NumberFormatException e) {
+//                    ans = String.valueOf(Ex2Utils.ERR_FORM);
+//                }
+//            } else if (cell.getType() == Ex2Utils.FORM) {
+//                try {
+//                    // מוסיף את התא הנוכחי לרשימת המבוקרים
+//                    visited.add(cellId);
+//
+//                    String formula = cell.getData().substring(1);
+//                    formula = formula.toUpperCase();
+//
+//                    for (int col = 0; col < width(); col++) {
+//                        for (int row = 0; row < height(); row++) {
+//                            String ref = Ex2Utils.ABC[col] + row;
+//
+//                            if (formula.contains(ref)) {
+//                                String cellVal = evalHelper(col, row, visited);
+//                                // אם התגלתה מעגליות בתת-העץ
+//                                if (cellVal.equals(String.valueOf(Ex2Utils.ERR_CYCLE_FORM))) {
+//                                    cell.setType(Ex2Utils.ERR_CYCLE_FORM);
+//                                    return String.valueOf(Ex2Utils.ERR_CYCLE_FORM);
+//                                }
+//                                formula = formula.replace(ref, cellVal);
+//                            }
+//                        }
+//                    }
+//
+//                    // מסיר את התא מרשימת המבוקרים
+//                  //  visited.remove(cellId);
+//
+//                    double result = SCell.computeForm(formula);
+//                    ans = String.valueOf(result);
+//                } catch (NumberFormatException e) {
+//                    cell.setType(Ex2Utils.ERR_FORM_FORMAT);
+//                    ans = String.valueOf(Ex2Utils.ERR_FORM);
+//                }
+//            } else if (cell.getType() == Ex2Utils.TEXT) {
+//                ans = cell.getData();
+//            } else {
+//                ans = Ex2Utils.EMPTY_CELL;
+//            }
+//        }
+//
+//        return ans;
+//    }
+
+
+//   public String eval(int x, int y) {
+//       String ans = null;
+//       if(get(x, y) != null) {
+//           ans=get(x, y).toString();
+//
+//       }else {
+//           return Ex2Utils.ERR_FORM;
+//       }
+//
+//       Cell cell = get(x, y);
+//       if (cell != null) {
+//           if(cell.getType() == Ex2Utils.NUMBER){
+//               try {
+//                   double num = Double.parseDouble(cell.getData());
+//                   ans = String.valueOf(num);
+//               }catch (NumberFormatException e){
+//                   ans = Ex2Utils.ERR_FORM;
+//               }
+//
+//               }else if (cell.getType() == Ex2Utils.FORM){
+//               try {
+//                   String formula = cell.getData().substring(1);
+//                         formula = formula.toUpperCase();
+//
+//
+//                       //if(formula.charAt(i).is)
+//                   for (int col =0 ; col < width() ; col++) {
+//                       for (int row = 0 ; row < height() ; row++) {
+//                            String ref = Ex2Utils.ABC[col] + row;
+//
+//                           if (formula.contains(ref)) {
+//                               String cellVal = eval(col,row);
+//                               formula = formula.replace(ref, cellVal);
+//                           }
+//                       }
+//
+//                   }
+//               double result = SCell.computeForm(formula);
+//                   ans = String.valueOf(result);
+//           }   catch (NumberFormatException e){
+//                   ans = Ex2Utils.ERR_FORM;
+//               }
+//           }
+//       }else if (cell.getType() == Ex2Utils.TEXT){
+//           ans = cell.getData();
+//       }else {
+//           ans = Ex2Utils.EMPTY_CELL;
+//      }
+//
+//    return ans;
+//   }
 
     @Override
     public Cell get(int x, int y) {
@@ -256,7 +437,7 @@ public class Ex2Sheet implements Sheet {
     @Override
     public Cell get(String cords) {
 
-    CellEntry ce = new CellEntry();
+        CellEntry ce = new CellEntry();
         if (!ce.isValid()) {
             return null;
         }
@@ -276,29 +457,30 @@ public class Ex2Sheet implements Sheet {
         // החזרת התא בקואורדינטות [x][y]
         return table[x][y];
     }
-    private String replaceReferences(String formula) {
-        Pattern pattern = Pattern.compile("[A-Za-z][0-9]+");
-        Matcher matcher = pattern.matcher(formula);
-        StringBuffer result = new StringBuffer();
 
-        while (matcher.find()) {
-            String cellRef = matcher.group();
-            int col = cellRef.charAt(0) - 'A';
-            int row = Integer.parseInt(cellRef.substring(1)) - 1;
-
-            if (isIn(col, row)) {
-                String value = value(col, row);
-                try {
-                    Double.parseDouble(value);
-                    matcher.appendReplacement(result, value);
-                } catch (NumberFormatException e) {
-                    matcher.appendReplacement(result, "0");
-                }
-            } else {
-                matcher.appendReplacement(result, "0");
-            }
-        }
-        matcher.appendTail(result);
-        return result.toString();
-        }
-    }
+//    private String replaceReferences(String formula) {
+//        Pattern pattern = Pattern.compile("[A-Za-z][0-9]+");
+//        Matcher matcher = pattern.matcher(formula);
+//        StringBuffer result = new StringBuffer();
+//
+//        while (matcher.find()) {
+//            String cellRef = matcher.group();
+//            int col = cellRef.charAt(0) - 'A';
+//            int row = Integer.parseInt(cellRef.substring(1)) - 1;
+//
+//            if (isIn(col, row)) {
+//                String value = value(col, row);
+//                try {
+//                    Double.parseDouble(value);
+//                    matcher.appendReplacement(result, value);
+//                } catch (NumberFormatException e) {
+//                    matcher.appendReplacement(result, "0");
+//                }
+//            } else {
+//                matcher.appendReplacement(result, "0");
+//            }
+//        }
+//        matcher.appendTail(result);
+//        return result.toString();
+//    }
+}
