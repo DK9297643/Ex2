@@ -253,20 +253,20 @@ public class SCell implements Cell {
         if (text.startsWith("="))
             text = text.substring(1);
 
-        if (text.startsWith("-")) {
-            // אם יש רק מינוס ומספר
-            if (!containsOperator(text.substring(1))) {
-                return -Double.parseDouble(text.substring(1).trim());
-            }
-        }
 //        if (text.startsWith("-")) {
-//            String x = text.substring(1);
-//            return computeForm("0-1*" + x);
+//            // אם יש רק מינוס ומספר
+//            if (!containsOperator(text.substring(1))) {
+//                return -Double.parseDouble(text.substring(1).trim());
+//            }
 //        }
-        if (text.startsWith("+")) {
-            String x = text.substring(1);
-            return  computeForm(x);
-        }
+////        if (text.startsWith("-")) {
+////            String x = text.substring(1);
+////            return computeForm("0-1*" + x);
+////        }
+//        if (text.startsWith("+")) {
+//            String x = text.substring(1);
+//            return  computeForm(x);
+//        }
 
         while (text.startsWith("(") && text.endsWith(")") && isBalanced(text.substring(1, text.length() - 1))) {
             text = text.substring(1, text.length() - 1);

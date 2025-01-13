@@ -1,34 +1,48 @@
- public class testDepths {
-    public static void main(String[] args){
-    // יצירת גיליון קטן 3x3
-    Ex2Sheet sheet = new Ex2Sheet(3, 3);
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
-    // מילוי הגיליון עם ערכים פשוטים
-    // שורה 1
-        sheet.set(0, 0, "5");           // A1 = 5
-        sheet.set(1, 0, "=A1+2");       // B1 = A1+2
-        sheet.set(2, 0, "=B1+3");       // C1 = B1+3
 
-    // נקבל את מערך העומקים
-    int[][] depths = sheet.depth();
 
-    // הדפסת הערכים בגיליון
-    System.out.println("Values in sheet:");
-    System.out.println("A1: 5");
-    System.out.println("B1: =A1+2");
-    System.out.println("C1: =B1+3");
-    System.out.println();
 
-    // הדפסת העומקים
-    System.out.println("Expected depths:");
-    System.out.println("A1: 0 (no dependencies)");
-    System.out.println("B1: 1 (depends on A1)");
-    System.out.println("C1: 2 (depends on B1 which depends on A1)");
-    System.out.println();
+public class testDepths {
 
-    System.out.println("Actual depths:");
-    System.out.println("A1: " + depths[0][0]);
-    System.out.println("B1: " + depths[1][0]);
-    System.out.println("C1: " + depths[2][0]);
-}
+
+    @Test
+    void testEmptyCellsDepth() {
+        Ex2Sheet sheet = new Ex2Sheet(3, 3);
+        int[][] depths = sheet.depth();
+
+        // כל התאים הריקים צריכים להיות בעומק 0
+        for(int i = 0; i < 3; i++) {
+            for(int j = 0; j < 3; j++) {
+                assertEquals(0, depths[i][j]);
+            }
+        }
     }
+
+
+
+
+    @Test
+    void testMixedContent() {
+        Ex2Sheet sheet = new Ex2Sheet(3, 3);
+
+        // תא טקסט
+        sheet.set(0, 0, "Hello");
+
+        // תא מספרי
+        sheet.set(1, 0, "42");
+
+        // נוסחה שמשתמשת במספר
+        sheet.set(2, 0, "=B1*2");  // תלוי ב-B1
+
+        int[][] depths = sheet.depth();
+
+        assertEquals(0, depths[0][0]); // טקסט - עומק 0
+        assertEquals(0, depths[1][0]); // מספר - עומק 0
+        assertEquals(1, depths[2][0]); // נוסחה - עומק 1
+    }
+
+
+
+}
