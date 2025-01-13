@@ -227,6 +227,7 @@ public class Ex2Sheet implements Sheet {
 
     @Override
     public void save(String fileName) throws IOException {
+
         // Add your code here
 
         /////////////////////
@@ -250,9 +251,9 @@ public class Ex2Sheet implements Sheet {
             return cell.getData();  // מחזיר את המחרוזת "ERR_CYCLE" במקום -1
         }
 
-        if (cell == null) {
-            return Ex2Utils.ERR_FORM;
-        }
+//        if (cell == null) {
+//            return Ex2Utils.ERR_FORM;
+//        }
 
         // טיפול בסוגי תאים שונים
         switch(cell.getType()) {
@@ -268,20 +269,44 @@ public class Ex2Sheet implements Sheet {
             case Ex2Utils.FORM:
                 try {
                     visited.add(cellId);
-                    String formula = cell.getData().substring(1).toUpperCase();
+                   // String formula = cell.getData().substring(1).toUpperCase();
+                    String formula = cell.getData();
+                    if (formula.startsWith("=")) {
+                        formula = formula.substring(1).trim().toUpperCase();
+                    }
+
+// בדיקה אם זו הפניה פשוטה לתא (כמו =A1)
+                    if (formula.matches("[A-Z][0-9]+")) {
+                        int col = formula.charAt(0) - 'A';
+                        int row = Integer.parseInt(formula.substring(1));
+                        if (isIn(col, row)) {
+                            String val = evalHelper(col, row, visited);
+                            visited.remove(cellId);
+                            return val;
+                        }
+                    }
 
                     // מחליף הפניות לתאים בערכים שלהם
                     for (int col = 0; col < width(); col++) {
                         for (int row = 0; row < height(); row++) {
                             String ref = Ex2Utils.ABC[col] + row;
-                            if (formula.contains(ref)) {
+                            if (formula.matches(".*\\b" + ref + "\\b.*")) {
                                 String cellVal = evalHelper(col, row, visited);
                                 // אם התקבלה שגיאת מחזוריות מתת-העץ
                                 if (cellVal.equals(Ex2Utils.ERR_CYCLE)) {
                                     cell.setType(Ex2Utils.ERR_CYCLE_FORM);
                                     return Ex2Utils.ERR_CYCLE;
                                 }
-                                formula = formula.replace(ref, cellVal);
+                                if (formula.startsWith("-"))  {
+                                    formula = "(" + cellVal + ")";
+                                } else {
+                                    formula = formula.replaceAll("\\b" + ref + "\\b", "(" + cellVal + ")");
+                                }
+//                                if (formula.startsWith("-") && ref.equals(formula.substring(1))) {
+//                                    formula = "-1*(" + cellVal + ")";
+//                                }else {
+//                                    formula = formula.replace(ref, "(" + cellVal + ")");
+//                                }
                             }
                         }
                     }
@@ -437,7 +462,7 @@ public class Ex2Sheet implements Sheet {
     @Override
     public Cell get(String cords) {
 
-        CellEntry ce = new CellEntry();
+        CellEntry ce = new CellEntry(0,0);
         if (!ce.isValid()) {
             return null;
         }

@@ -4,6 +4,11 @@ public class CellEntry  implements Index2D {
     private int x;
     private int y;
 
+    public CellEntry(int xx, int yy) {
+        this.x = xx;
+        this.y = yy;
+    }
+
     @Override
     public String toString(){
 

@@ -80,13 +80,13 @@ public class SCell implements Cell {
         // בדיקת תקינות הערך
         this.type = t;
         // אם זו שגיאת מחזוריות, נעדכן גם את הdata
-        if (t == Ex2Utils.ERR_CYCLE_FORM) {
-            this.line = Ex2Utils.ERR_CYCLE;
-        }
-        // אם זו שגיאת פורמט, נעדכן גם את הdata
-        else if (t == Ex2Utils.ERR_FORM_FORMAT) {
-            this.line = Ex2Utils.ERR_FORM;
-        }
+//        if (t == Ex2Utils.ERR_CYCLE_FORM) {
+//            this.line = Ex2Utils.ERR_CYCLE;
+//        }
+//        // אם זו שגיאת פורמט, נעדכן גם את הdata
+//        else if (t == Ex2Utils.ERR_FORM_FORMAT) {
+//            this.line = Ex2Utils.ERR_FORM;
+//        }
     }
 //    @Override
 //    public int getType() {
@@ -247,12 +247,32 @@ public class SCell implements Cell {
     public static double computeForm(String text)
     {
         text = text.trim();
+
+
+
         if (text.startsWith("="))
             text = text.substring(1);
+
+        if (text.startsWith("-")) {
+            // אם יש רק מינוס ומספר
+            if (!containsOperator(text.substring(1))) {
+                return -Double.parseDouble(text.substring(1).trim());
+            }
+        }
+//        if (text.startsWith("-")) {
+//            String x = text.substring(1);
+//            return computeForm("0-1*" + x);
+//        }
+        if (text.startsWith("+")) {
+            String x = text.substring(1);
+            return  computeForm(x);
+        }
 
         while (text.startsWith("(") && text.endsWith(")") && isBalanced(text.substring(1, text.length() - 1))) {
             text = text.substring(1, text.length() - 1);
         }
+
+
         if (!containsOperator(text)) {
             return Double.parseDouble(text.trim());
         }
@@ -341,7 +361,25 @@ public class SCell implements Cell {
         }
         return balance == 0;
     }
-}
-
-
+    private static boolean containsCellReference(String text) {
+        for (int i = 0; i < text.length(); i++) {
+            if (Character.isLetter(text.charAt(i))) {
+                int j = i + 1;
+                while (j < text.length() && Character.isDigit(text.charAt(j))) {
+                    j++;
+                }
+                if (j > i + 1) {
+                    String potential = text.substring(i, j);
+                    if (isCellReference(potential)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+    private static boolean isCellReference(String text) {
+        return text.matches("[A-Za-z][0-9]+");  // למשל A1, B2 וכו'
+    }
+    }
 
